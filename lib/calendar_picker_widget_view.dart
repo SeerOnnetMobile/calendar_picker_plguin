@@ -76,8 +76,13 @@ class CalendarPickerWidgetPage extends StatelessWidget {
 
   }
 
+  // 关闭弹窗
   void closeBottomSheet() {
-    Navigator.pop(_context!);
+    if (_context != null) {
+      Navigator.pop(_context!);
+    } else {
+      SmartDialog.dismiss();
+    }
   }
 
   @override

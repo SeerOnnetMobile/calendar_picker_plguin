@@ -37,14 +37,13 @@ class _MyAppState extends State<MyApp> {
       ),
       home: MyPage(),
       navigatorObservers: [FlutterSmartDialog.observer],
-      builder: FlutterSmartDialog.init(
-          builder: (context, widget) {
-            return MediaQuery(
-              ///设置文字大小不随系统设置改变
-              data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
-              child: widget ?? const SizedBox(),
-            );
-          }),
+      builder: FlutterSmartDialog.init(builder: (context, widget) {
+        return MediaQuery(
+          ///设置文字大小不随系统设置改变
+          data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+          child: widget ?? const SizedBox(),
+        );
+      }),
     );
   }
 }
@@ -60,6 +59,7 @@ class _MyPageState extends State<MyPage> {
   String _selectedDate = '未选择';
   String _errorMsg = '';
   bool _isLunar = true;
+  bool _isSmartDialog = true;
   bool _isUnknowHour = true;
   CalendarPickerType _type = CalendarPickerType.day;
   final initTimeController = TextEditingController(text: "1859385600");
@@ -117,6 +117,17 @@ class _MyPageState extends State<MyPage> {
                         value: _isUnknowHour,
                         onChanged: (isTrue) {
                           _isUnknowHour = isTrue;
+                          setState(() {});
+                        }),
+                  ],
+                ),
+                Row(
+                  children: [
+                    const Text("是否使用SmartDialog？"),
+                    Switch(
+                        value: _isSmartDialog,
+                        onChanged: (isTrue) {
+                          _isSmartDialog = isTrue;
                           setState(() {});
                         }),
                   ],
@@ -247,7 +258,7 @@ class _MyPageState extends State<MyPage> {
         segmentSelectedColor: Colors.green,
         confirmBtnColor: Colors.yellow,
         confirmTextColor: Colors.black);
-    CalendarPickerWidgetPage(
+    final page = CalendarPickerWidgetPage(
       config: config,
       initialDate: int.parse(initTimeController.text),
       minDate: int.parse(minTimeController.text),
@@ -266,6 +277,11 @@ class _MyPageState extends State<MyPage> {
         _errorMsg = msg;
         setState(() {});
       },
-    ).showWithSmartDialog();
+    );
+    if (_isSmartDialog) {
+      page.showWithSmartDialog();
+    } else {
+      page.show(context: context);
+    }
   }
 }
