@@ -4,6 +4,7 @@ import 'package:calendar_picker_sl/common/app_click_view.dart';
 import 'package:calendar_picker_sl/common/calendar_config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 
 void main() {
   runApp(const MyApp());
@@ -35,6 +36,15 @@ class _MyAppState extends State<MyApp> {
         primarySwatch: Colors.blue,
       ),
       home: MyPage(),
+      navigatorObservers: [FlutterSmartDialog.observer],
+      builder: FlutterSmartDialog.init(
+          builder: (context, widget) {
+            return MediaQuery(
+              ///设置文字大小不随系统设置改变
+              data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+              child: widget ?? const SizedBox(),
+            );
+          }),
     );
   }
 }
@@ -232,7 +242,7 @@ class _MyPageState extends State<MyPage> {
     _selectedDate = "";
     setState(() {});
     final config = CalendarConfig(
-        btnTextColor: Colors.red,
+        segmentSelectedBgColor: Colors.red,
         segmentNormalColor: Colors.blue,
         segmentSelectedColor: Colors.green,
         confirmBtnColor: Colors.yellow,
@@ -256,6 +266,6 @@ class _MyPageState extends State<MyPage> {
         _errorMsg = msg;
         setState(() {});
       },
-    ).show(context: context);
+    ).showWithSmartDialog();
   }
 }

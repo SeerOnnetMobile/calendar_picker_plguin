@@ -1,7 +1,7 @@
 name: calendar_picker_sl
 description: "日期选择器，包括农历"
 version: 0.0.1
-homepage: https://www.baidu.com
+homepage: https://github.com/SeerOnnetMobile/calendar_picker_plguin
 
 environment:
   sdk: ^3.5.4

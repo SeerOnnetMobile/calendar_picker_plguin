@@ -1,9 +1,9 @@
-
 import 'package:calendar_picker_sl/common/app_click_view.dart';
 import 'package:calendar_picker_sl/common/calendar_month_model.dart';
 import 'package:calendar_picker_sl/common/common_method.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
@@ -28,25 +28,22 @@ class CalendarPickerWidgetPage extends StatelessWidget {
   CalendarConfig? config;
   BuildContext? _context;
 
-  CalendarPickerWidgetPage({super.key,
-    this.initialDate,
-    this.maxDate,
-    this.minDate,
-    this.config,
-    required this.isSolar,
-    required this.isUnknownHour,
-    required this.pickerType,
-    required this.dateCallback,
-    required this.errorCallback});
+  CalendarPickerWidgetPage(
+      {super.key,
+      this.initialDate,
+      this.maxDate,
+      this.minDate,
+      this.config,
+      this.isUnknownHour = false,
+      required this.isSolar,
+      required this.pickerType,
+      required this.dateCallback,
+      required this.errorCallback});
 
   late final logic = Get.put(CalendarPickerWidgetLogic(
-      initialDate: initialDate,
-      minDate: minDate,
-      maxDate: maxDate,
-      initialIsSolar: isSolar,
-      isUnknownHour: isUnknownHour,
-      pickerType: pickerType));
+      initialDate: initialDate, minDate: minDate, maxDate: maxDate, initialIsSolar: isSolar, isUnknownHour: isUnknownHour, pickerType: pickerType));
 
+  // 普通弹出
   show({required BuildContext context}) {
     FocusManager.instance.primaryFocus?.unfocus();
     if (logic.maxDateTime.millisecondsSinceEpoch < logic.minDateTime.millisecondsSinceEpoch) {
@@ -56,9 +53,27 @@ class CalendarPickerWidgetPage extends StatelessWidget {
     }
 
     _context = context;
-    showBottomDialog(this,context: context, onDismiss: () {
+    showBottomDialog(this, context: context, onDismiss: () {
       Get.delete<CalendarPickerWidgetLogic>(force: true);
     });
+  }
+
+  // 用SmartDialog弹出
+  showWithSmartDialog() {
+    FocusManager.instance.primaryFocus?.unfocus();
+    if (logic.maxDateTime.millisecondsSinceEpoch < logic.minDateTime.millisecondsSinceEpoch) {
+      errorCallback("起始时间不能晚于结束时间");
+      Get.delete<CalendarPickerWidgetLogic>(force: true);
+      return;
+    }
+    showSmartBottomDialog(Container(
+      width: double.infinity,
+      decoration: const BoxDecoration(
+        color: Colors.white,
+      ),
+      child: this,
+    ),errorCallback: errorCallback);
+
   }
 
   void closeBottomSheet() {
@@ -68,23 +83,14 @@ class CalendarPickerWidgetPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     CalendarConfig _config = config ?? CalendarConfig();
-    double width = MediaQuery
-        .of(context)
-        .size
-        .width;
-    double paddingBottom = MediaQuery
-        .of(context)
-        .viewPadding
-        .bottom;
+    double width = MediaQuery.of(context).size.width;
+    double paddingBottom = MediaQuery.of(context).viewPadding.bottom;
     return GetBuilder<CalendarPickerWidgetLogic>(
       assignId: true,
       builder: (logic) {
         return SizedBox(
           width: width - 10,
-          height: MediaQuery
-              .of(context)
-              .viewPadding
-              .bottom + 385,
+          height: MediaQuery.of(context).viewPadding.bottom + 385,
           child: Column(
             mainAxisSize: MainAxisSize.max,
             children: [
@@ -106,7 +112,7 @@ class CalendarPickerWidgetPage extends StatelessWidget {
                         duration: const Duration(milliseconds: 500),
                         curve: Curves.fastOutSlowIn,
                         child: Container(
-                          decoration: BoxDecoration(color: _config.btnTextColor, borderRadius: BorderRadius.circular(10)),
+                          decoration: BoxDecoration(color: _config.segmentSelectedBgColor, borderRadius: BorderRadius.circular(10)),
                           height: 32,
                           width: 57,
                         ),
@@ -154,63 +160,63 @@ class CalendarPickerWidgetPage extends StatelessWidget {
                   children: [
                     Expanded(
                         child: SizedBox(
-                          width: logic.pickerType == CalendarPickerType.day ? 240 : width - 30,
-                          child: Row(
-                            children: [
-                              buildPicker(
-                                title: "年".tr,
-                                scrollController: logic.yearController,
-                                items: logic.year,
-                                mapClosure: (e) {
-                                  return Center(
-                                    child: Text(
-                                      e.display,
-                                      style: const TextStyle(color: Colors.black, fontSize: 15),
-                                    ),
-                                  );
-                                },
-                                onSelectedItemChanged: (index) {
-                                  logic.sYear.value = logic.year.value[index];
-                                  logic.updateCalendar(uploadType: CalendarPickerUpdateCalendarType.year);
-                                },
-                              ),
-                              buildPicker(
-                                title: "月".tr,
-                                scrollController: logic.monthController,
-                                items: logic.month,
-                                mapClosure: (e) {
-                                  return Center(
-                                    child: Text(
-                                      e.display + (logic.isSolar.isFalse ? "月" : ""),
-                                      style: const TextStyle(color: Colors.black, fontSize: 14),
-                                    ),
-                                  );
-                                },
-                                onSelectedItemChanged: (index) {
-                                  logic.sMonth.value = logic.month.value[index];
-                                  logic.updateCalendar(uploadType: CalendarPickerUpdateCalendarType.month);
-                                },
-                              ),
-                              buildPicker(
-                                title: "日".tr,
-                                scrollController: logic.dayController,
-                                items: logic.day,
-                                mapClosure: (e) {
-                                  return Center(
-                                    child: Text(
-                                      e.display,
-                                      style: const TextStyle(color: Colors.black, fontSize: 14),
-                                    ),
-                                  );
-                                },
-                                onSelectedItemChanged: (index) {
-                                  logic.sDay.value = logic.day.value[index];
-                                  logic.updateCalendar(uploadType: CalendarPickerUpdateCalendarType.day);
-                                },
-                              ),
-                            ],
+                      width: logic.pickerType == CalendarPickerType.day ? 240 : width - 30,
+                      child: Row(
+                        children: [
+                          buildPicker(
+                            title: "年".tr,
+                            scrollController: logic.yearController,
+                            items: logic.year,
+                            mapClosure: (e) {
+                              return Center(
+                                child: Text(
+                                  e.display,
+                                  style: const TextStyle(color: Colors.black, fontSize: 15),
+                                ),
+                              );
+                            },
+                            onSelectedItemChanged: (index) {
+                              logic.sYear.value = logic.year.value[index];
+                              logic.updateCalendar(uploadType: CalendarPickerUpdateCalendarType.year);
+                            },
                           ),
-                        )),
+                          buildPicker(
+                            title: "月".tr,
+                            scrollController: logic.monthController,
+                            items: logic.month,
+                            mapClosure: (e) {
+                              return Center(
+                                child: Text(
+                                  e.display + (logic.isSolar.isFalse ? "月" : ""),
+                                  style: const TextStyle(color: Colors.black, fontSize: 14),
+                                ),
+                              );
+                            },
+                            onSelectedItemChanged: (index) {
+                              logic.sMonth.value = logic.month.value[index];
+                              logic.updateCalendar(uploadType: CalendarPickerUpdateCalendarType.month);
+                            },
+                          ),
+                          buildPicker(
+                            title: "日".tr,
+                            scrollController: logic.dayController,
+                            items: logic.day,
+                            mapClosure: (e) {
+                              return Center(
+                                child: Text(
+                                  e.display,
+                                  style: const TextStyle(color: Colors.black, fontSize: 14),
+                                ),
+                              );
+                            },
+                            onSelectedItemChanged: (index) {
+                              logic.sDay.value = logic.day.value[index];
+                              logic.updateCalendar(uploadType: CalendarPickerUpdateCalendarType.day);
+                            },
+                          ),
+                        ],
+                      ),
+                    )),
                     if (logic.pickerType == CalendarPickerType.day) const SizedBox(),
                     if (logic.pickerType == CalendarPickerType.hour)
                       buildPicker(
@@ -278,13 +284,13 @@ class CalendarPickerWidgetPage extends StatelessWidget {
                   child: Container(
                     decoration: BoxDecoration(color: _config.confirmBtnColor, borderRadius: BorderRadius.circular(10)),
                     width: double.infinity,
-                    margin: const EdgeInsets.only(top: 20),
+                    margin: const EdgeInsets.only(top: 20, left: 15, right: 15),
                     height: 50,
                     child: Center(
                         child: Text(
-                          "确认",
-                          style: TextStyle(fontSize: 18, color: _config.confirmTextColor),
-                        )),
+                      "确认",
+                      style: TextStyle(fontSize: 18, color: _config.confirmTextColor),
+                    )),
                   ),
                   onClick: () {
                     logic.updateSelectedDate();
@@ -315,11 +321,12 @@ class CalendarPickerWidgetPage extends StatelessWidget {
     );
   }
 
-  Expanded buildPicker({required String title,
-    required Rx scrollController,
-    required RxList<CalendarItemModel> items,
-    required MapWidget mapClosure,
-    required ValueChanged<int>? onSelectedItemChanged}) {
+  Expanded buildPicker(
+      {required String title,
+      required Rx scrollController,
+      required RxList<CalendarItemModel> items,
+      required MapWidget mapClosure,
+      required ValueChanged<int>? onSelectedItemChanged}) {
     return Expanded(
         flex: 1,
         child: Column(
