@@ -18,6 +18,11 @@ enum CalendarPickerUpdateCalendarType {
   common, // 通用
 }
 
+enum CalendarPickerLanguage {
+  zh_Hans,
+  zh_Hant,
+}
+
 class CalendarPickerWidgetLogic extends GetxController {
   int? initialDate;
 
@@ -34,6 +39,8 @@ class CalendarPickerWidgetLogic extends GetxController {
   int selectedDate = 1695444837;
 
   CalendarPickerType pickerType = CalendarPickerType.day;
+
+  CalendarPickerLanguage language;
 
   late final yearController = FixedExtentScrollController().obs;
 
@@ -52,7 +59,13 @@ class CalendarPickerWidgetLogic extends GetxController {
   int? minDate;
 
   CalendarPickerWidgetLogic(
-      {this.initialDate, this.minDate, this.maxDate, this.initialIsSolar, required this.isUnknownHour, required this.pickerType});
+      {this.initialDate,
+      this.minDate,
+      this.maxDate,
+      this.initialIsSolar,
+      required this.isUnknownHour,
+      required this.pickerType,
+      required this.language});
 
   RxList<CalendarItemModel> year = RxList<CalendarItemModel>(), month = RxList<CalendarItemModel>(), day = RxList<CalendarItemModel>();
 
@@ -172,33 +185,63 @@ class CalendarPickerWidgetLogic extends GetxController {
     }
     year.value = tmpYears;
 
-    final tmpList = [
-      '时辰未知',
-      '00:00~00:59(早子)',
-      '01:00~01:59(丑时)',
-      '02:00~02:59(丑时)',
-      '03:00~03:59(寅时)',
-      '04:00~04:59(寅时)',
-      '05:00~05:59(卯时)',
-      '06:00~06:59(卯时)',
-      '07:00~07:59(辰时)',
-      '08:00~08:59(辰时)',
-      '09:00~09:59(巳时)',
-      '10:00~10:59(巳时)',
-      '11:00~11:59(午时)',
-      '12:00~12:59(午时)',
-      '13:00~13:59(未时)',
-      '14:00~14:59(未时)',
-      '15:00~15:59(申时)',
-      '16:00~16:59(申时)',
-      '17:00~17:59(酉时)',
-      '18:00~18:59(酉时)',
-      '19:00~19:59(戌时)',
-      '20:00~20:59(戌时)',
-      '21:00~21:59(亥时)',
-      '22:00~22:59(亥时)',
-      '23:00~23:59(晚子)'
-    ];
+    nRegularMonth = ['正', '二', '三', '四', '五', '六', '七', '八', '九', '十', '冬', getText(key: "twelve")];
+
+    final tmpList = language == CalendarPickerLanguage.zh_Hans
+        ? [
+            '时辰未知',
+            '00:00~00:59(早子)',
+            '01:00~01:59(丑时)',
+            '02:00~02:59(丑时)',
+            '03:00~03:59(寅时)',
+            '04:00~04:59(寅时)',
+            '05:00~05:59(卯时)',
+            '06:00~06:59(卯时)',
+            '07:00~07:59(辰时)',
+            '08:00~08:59(辰时)',
+            '09:00~09:59(巳时)',
+            '10:00~10:59(巳时)',
+            '11:00~11:59(午时)',
+            '12:00~12:59(午时)',
+            '13:00~13:59(未时)',
+            '14:00~14:59(未时)',
+            '15:00~15:59(申时)',
+            '16:00~16:59(申时)',
+            '17:00~17:59(酉时)',
+            '18:00~18:59(酉时)',
+            '19:00~19:59(戌时)',
+            '20:00~20:59(戌时)',
+            '21:00~21:59(亥时)',
+            '22:00~22:59(亥时)',
+            '23:00~23:59(晚子)'
+          ]
+        : [
+            '時辰未知',
+            '00:00~00:59(早子)',
+            '01:00~01:59(丑時)',
+            '02:00~02:59(丑時)',
+            '03:00~03:59(寅時)',
+            '04:00~04:59(寅時)',
+            '05:00~05:59(卯時)',
+            '06:00~06:59(卯時)',
+            '07:00~07:59(辰時)',
+            '08:00~08:59(辰時)',
+            '09:00~09:59(巳時)',
+            '10:00~10:59(巳時)',
+            '11:00~11:59(午時)',
+            '12:00~12:59(午時)',
+            '13:00~13:59(未時)',
+            '14:00~14:59(未時)',
+            '15:00~15:59(申時)',
+            '16:00~16:59(申時)',
+            '17:00~17:59(酉時)',
+            '18:00~18:59(酉時)',
+            '19:00~19:59(戌時)',
+            '20:00~20:59(戌時)',
+            '21:00~21:59(亥時)',
+            '22:00~22:59(亥時)',
+            '23:00~23:59(晚子)'
+          ];
 
     time.value = tmpList.map((e) => CalendarItemModel(display: e, code: tmpList.indexOf(e) - 1)).toList();
 
@@ -856,7 +899,7 @@ class CalendarPickerWidgetLogic extends GetxController {
     } else {
       final dateInfo = lunarDateInfoArray();
 
-      List nRegularMonth = ['正', '二', '三', '四', '五', '六', '七', '八', '九', '十', '冬', '腊'];
+      List nRegularMonth = ['正', '二', '三', '四', '五', '六', '七', '八', '九', '十', '冬', getText(key: "twelve")];
       List nday = [
         '初一',
         '初二',
@@ -897,7 +940,7 @@ class CalendarPickerWidgetLogic extends GetxController {
         for (int i = 0; i < nRegularMonth.length; i++) {
           tmpMonth.add(nRegularMonth[i]);
           if (i == (runMonth - 1)) {
-            tmpMonth.add("闰${nRegularMonth[runMonth - 1]}");
+            tmpMonth.add("${getText(key: "leap")}${nRegularMonth[runMonth - 1]}");
           }
         }
         nRegularMonth = tmpMonth;
@@ -909,7 +952,7 @@ class CalendarPickerWidgetLogic extends GetxController {
       String dayString = "${dateInfo[0]}年${nRegularMonth[monthIndex]}月${nday[dateInfo[2] - 1]}";
 
       if (pickerType == CalendarPickerType.hour) {
-        final hour = (unknowHour ? "base_unknow_hour".tr : "${dateInfo[3]}:00~${dateInfo[3]}:59");
+        final hour = (unknowHour ? getText(key: "base_unknow_hour") : "${dateInfo[3]}:00~${dateInfo[3]}:59");
         dayString = "$dayString $hour";
       }
       if (pickerType == CalendarPickerType.minute) {
@@ -918,6 +961,44 @@ class CalendarPickerWidgetLogic extends GetxController {
         dayString = "$dayString ${hour.toString().padLeft(2, "0")}:${minute.toString().padLeft(2, "0")}:00";
       }
       return dayString;
+    }
+  }
+
+  String getText({required String key}) {
+    Map<String, String> languageMap = {};
+    if (language == CalendarPickerLanguage.zh_Hans) {
+      languageMap = {
+        "error_range": "起始时间不能晚于结束时间",
+        "base_unknow_hour": "未知时辰",
+        "twelve": "腊",
+        "leap": "闰",
+        "solar": "公历",
+        "lunar": "农历",
+        "hour": "时",
+        "confirm": "确定",
+        "cant_early_then": "选中日期不能早于",
+        "cant_late_then": "选中日期不能晚于"
+      };
+    } else {
+      languageMap = {
+        "error_range": "起始時間不能早於結束時間",
+        "base_unknow_hour": "未知時辰",
+        "twelve": "臘",
+        "leap": "閏",
+        "solar": "公曆",
+        "lunar": "農曆",
+        "hour": "時",
+        "confirm": "確定",
+        "cant_early_then": "选中日期不能早于",
+        "cant_late_then": "选中日期不能晚于",
+        "cant_early_then": "選中日期不能早於",
+        "cant_late_then": "選中日期不能晚於"
+      };
+    }
+    if (!languageMap.containsKey(key)) {
+      return "未翻译";
+    } else {
+      return languageMap[key]!;
     }
   }
 }

@@ -27,27 +27,36 @@ class CalendarPickerWidgetPage extends StatelessWidget {
   ErrorCallback errorCallback;
   CalendarConfig? config;
   BuildContext? _context;
+  CalendarPickerLanguage language;
 
-  CalendarPickerWidgetPage(
-      {super.key,
-      this.initialDate,
-      this.maxDate,
-      this.minDate,
-      this.config,
-      this.isUnknownHour = false,
-      required this.isSolar,
-      required this.pickerType,
-      required this.dateCallback,
-      required this.errorCallback});
+  CalendarPickerWidgetPage({
+    super.key,
+    this.initialDate,
+    this.maxDate,
+    this.minDate,
+    this.config,
+    this.isUnknownHour = false,
+    this.language = CalendarPickerLanguage.zh_Hans,
+    required this.isSolar,
+    required this.pickerType,
+    required this.dateCallback,
+    required this.errorCallback,
+  });
 
   late final logic = Get.put(CalendarPickerWidgetLogic(
-      initialDate: initialDate, minDate: minDate, maxDate: maxDate, initialIsSolar: isSolar, isUnknownHour: isUnknownHour, pickerType: pickerType));
+      initialDate: initialDate,
+      minDate: minDate,
+      maxDate: maxDate,
+      initialIsSolar: isSolar,
+      isUnknownHour: isUnknownHour,
+      pickerType: pickerType,
+      language: language));
 
   // 普通弹出
   show({required BuildContext context}) {
     FocusManager.instance.primaryFocus?.unfocus();
     if (logic.maxDateTime.millisecondsSinceEpoch < logic.minDateTime.millisecondsSinceEpoch) {
-      errorCallback("起始时间不能晚于结束时间");
+      errorCallback(logic.getText(key: "error_range"));
       Get.delete<CalendarPickerWidgetLogic>(force: true);
       return;
     }
@@ -62,18 +71,19 @@ class CalendarPickerWidgetPage extends StatelessWidget {
   showWithSmartDialog() {
     FocusManager.instance.primaryFocus?.unfocus();
     if (logic.maxDateTime.millisecondsSinceEpoch < logic.minDateTime.millisecondsSinceEpoch) {
-      errorCallback("起始时间不能晚于结束时间");
+      errorCallback(logic.getText(key: "error_range"));
       Get.delete<CalendarPickerWidgetLogic>(force: true);
       return;
     }
-    showSmartBottomDialog(Container(
-      width: double.infinity,
-      decoration: const BoxDecoration(
-        color: Colors.white,
-      ),
-      child: this,
-    ),errorCallback: errorCallback);
-
+    showSmartBottomDialog(
+        Container(
+          width: double.infinity,
+          decoration: const BoxDecoration(
+            color: Colors.white,
+          ),
+          child: this,
+        ),
+        errorCallback: errorCallback);
   }
 
   // 关闭弹窗
@@ -130,7 +140,7 @@ class CalendarPickerWidgetPage extends StatelessWidget {
                             Expanded(
                                 child: AppClickView(
                                     child: Text(
-                                      "农历",
+                                      logic.getText(key: "lunar"),
                                       style: logic.isSolar.value == false
                                           ? TextStyle(color: _config.segmentNormalColor, fontSize: 16)
                                           : TextStyle(color: _config.segmentSelectedColor, fontSize: 16),
@@ -141,7 +151,7 @@ class CalendarPickerWidgetPage extends StatelessWidget {
                                     })),
                             Expanded(
                                 child: AppClickView(
-                                    child: Text("新历",
+                                    child: Text(logic.getText(key: "solar"),
                                         style: logic.isSolar.value == true
                                             ? TextStyle(color: _config.segmentNormalColor, fontSize: 16)
                                             : TextStyle(color: _config.segmentSelectedColor, fontSize: 16),
@@ -247,7 +257,7 @@ class CalendarPickerWidgetPage extends StatelessWidget {
                         child: Row(
                           children: [
                             buildPicker(
-                              title: "时".tr,
+                              title: logic.getText(key: "hour"),
                               scrollController: logic.hourController,
                               items: logic.hour,
                               mapClosure: (e) {
@@ -293,7 +303,7 @@ class CalendarPickerWidgetPage extends StatelessWidget {
                     height: 50,
                     child: Center(
                         child: Text(
-                      "确认",
+                      logic.getText(key: "confirm"),
                       style: TextStyle(fontSize: 18, color: _config.confirmTextColor),
                     )),
                   ),
@@ -306,11 +316,11 @@ class CalendarPickerWidgetPage extends StatelessWidget {
                     if (minDate != null && date < logic.minDateTime.millisecondsSinceEpoch ~/ 1000) {
                       DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(minDate! * 1000);
                       String time = DateFormat("yyyy-MM-dd HH:mm").format(dateTime);
-                      errorCallback("選中日期不能早於$time");
+                      errorCallback("${logic.getText(key: "cant_early_then")}$time");
                     } else if (maxDate != null && date > logic.maxDateTime.millisecondsSinceEpoch ~/ 1000) {
                       DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(maxDate! * 1000);
                       String time = DateFormat("yyyy-MM-dd HH:mm").format(dateTime);
-                      errorCallback("選中日期不能晚於$time");
+                      errorCallback("${logic.getText(key: "cant_late_then")}$time");
                     } else {
                       closeBottomSheet();
                       dateCallback(date, isSolar, logic.isUnknownHour, displayString);

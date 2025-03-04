@@ -8,7 +8,7 @@ class CalendarConfig {
   final Color confirmTextColor;              // 确认按钮文字颜色
 
   CalendarConfig({
-    this.segmentSelectedBgColor = const Color(0xFF333333),
+    this.segmentSelectedBgColor = const Color(0xFFC8843C),
     this.segmentNormalColor = const Color(0xFFFFFFFF),
     this.segmentSelectedColor = const Color(0xFF333333),
     this.confirmBtnColor = const Color(0xFFC8843C),

@@ -259,6 +259,7 @@ class _MyPageState extends State<MyPage> {
         confirmBtnColor: Colors.yellow,
         confirmTextColor: Colors.black);
     final page = CalendarPickerWidgetPage(
+      language: CalendarPickerLanguage.zh_Hant,
       config: config,
       initialDate: int.parse(initTimeController.text),
       minDate: int.parse(minTimeController.text),
