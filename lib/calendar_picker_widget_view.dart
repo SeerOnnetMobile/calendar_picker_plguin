@@ -347,7 +347,7 @@ class CalendarPickerWidgetPage extends StatelessWidget {
         child: Column(
           children: [
             Text(
-              title.tr,
+              title,
               style: const TextStyle(color: Colors.black, fontSize: 18),
             ),
             const SizedBox(
