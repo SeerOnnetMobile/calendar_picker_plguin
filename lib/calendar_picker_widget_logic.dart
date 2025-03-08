@@ -885,8 +885,7 @@ class CalendarPickerWidgetLogic extends GetxController {
       String dayString = "${dateInfo[0]}年${dateInfo[1]}月${dateInfo[2]}日";
 
       if (pickerType == CalendarPickerType.hour) {
-        final hour =
-            (unknowHour ? getText(key: "base_unknow_hour") : "${dateInfo[3].toString().padLeft(2, "0")}:${dateInfo[4].toString().padLeft(2, "0")}");
+        final hour = (unknowHour ? getText(key: "base_unknow_hour") : "${dateInfo[3]}:00~${dateInfo[3]}:59");
         dayString = "$dayString $hour";
       }
 
