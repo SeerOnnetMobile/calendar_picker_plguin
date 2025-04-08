@@ -1,3 +1,4 @@
+
 import 'package:calendar_picker_sl/calendar_picker_widget_logic.dart';
 import 'package:calendar_picker_sl/calendar_picker_widget_view.dart';
 import 'package:calendar_picker_sl/common/app_click_view.dart';
@@ -62,9 +63,17 @@ class _MyPageState extends State<MyPage> {
   bool _isSmartDialog = true;
   bool _isUnknowHour = true;
   CalendarPickerType _type = CalendarPickerType.day;
-  final initTimeController = TextEditingController(text: "1859385600");
+  final initTimeController = TextEditingController(text: "1744024324");
+  final timeZoneController = TextEditingController(text: "");
   final minTimeController = TextEditingController(text: "978345360");
   final maxTimeController = TextEditingController(text: "1859451720");
+
+  @override
+  void initState() {
+    initTimeController.text = (DateTime.now().millisecondsSinceEpoch ~/ 1000).toString();
+
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -130,6 +139,19 @@ class _MyPageState extends State<MyPage> {
                           _isSmartDialog = isTrue;
                           setState(() {});
                         }),
+                  ],
+                ),
+                Row(
+                  children: [
+                    Text("时区："),
+                    Expanded(
+                        child: TextField(
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                        labelText: '請輸入時區標識符（Asia/Shanghai）', // 可參考：https://www.cnblogs.com/chig/p/17878513.html
+                      ),
+                      controller: timeZoneController,
+                    )),
                   ],
                 ),
                 SizedBox(
@@ -267,10 +289,16 @@ class _MyPageState extends State<MyPage> {
       isSolar: !_isLunar,
       isUnknownHour: _isUnknowHour,
       pickerType: _type,
+      utcZone: timeZoneController.text.isEmpty? null : timeZoneController.text,
       dateCallback: (date, isSolar, isUnknowHour, displayString) {
         debugPrint("$displayString");
         setState(() {
           _selectedDate = displayString;
+          initTimeController.text = date.toString();
+          _isLunar = !isSolar;
+          setState(() {
+
+          });
         });
       },
       errorCallback: (msg) {

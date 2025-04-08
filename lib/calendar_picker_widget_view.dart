@@ -28,6 +28,7 @@ class CalendarPickerWidgetPage extends StatelessWidget {
   CalendarConfig? config;
   BuildContext? _context;
   CalendarPickerLanguage language;
+  String? utcZone;
 
   CalendarPickerWidgetPage({
     super.key,
@@ -37,6 +38,7 @@ class CalendarPickerWidgetPage extends StatelessWidget {
     this.config,
     this.isUnknownHour = false,
     this.language = CalendarPickerLanguage.zh_Hans,
+    this.utcZone,
     required this.isSolar,
     required this.pickerType,
     required this.dateCallback,
@@ -47,6 +49,7 @@ class CalendarPickerWidgetPage extends StatelessWidget {
       initialDate: initialDate,
       minDate: minDate,
       maxDate: maxDate,
+      utcZone: utcZone,
       initialIsSolar: isSolar,
       isUnknownHour: isUnknownHour,
       pickerType: pickerType,

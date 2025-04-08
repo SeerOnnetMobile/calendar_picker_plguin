@@ -1,3 +1,5 @@
+import 'package:timezone/timezone.dart' as tz;
+import 'package:timezone/data/latest.dart' as tz_data;
 class CalendarTool {
   /*  支持转换的最小农历年份 */
   static const int _MIN_YEAR = 1900;
@@ -441,19 +443,29 @@ class CalendarTool {
   /*
    * 传回日期信息
    */
-  static List<int> solarDateToIntList(int timestamp) {
-    var date = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
-    return [date.year, date.month, date.day, date.hour,date.minute];
+  static List<int> solarDateToIntList(int timestamp, {String? utcZone}) {
+    if (utcZone != null) {
+      tz_data.initializeTimeZones();
+      final date = tz.TZDateTime.fromMillisecondsSinceEpoch(tz.getLocation(utcZone!), timestamp * 1000);
+      return [date.year, date.month, date.day, date.hour, date.minute];
+    } else {
+      var date = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
+      return [date.year, date.month, date.day, date.hour, date.minute];
+    }
   }
 
-  static List<int> solarDateToLunar(int timestamp) {
+  static List<int> solarDateToLunar(int timestamp, {String? utcZone}) {
     //参数区间1900.1.31~2100.12.31
     // var y = int.parse(yearsolar2lunar);
     // var m = int.parse(monthsolar2lunar);
     // var d = int.parse(daysolar2lunar);
     //年份限定、上限
 
-    var cal = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
+    DateTime cal = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
+    if (utcZone != null) {
+      tz_data.initializeTimeZones();
+      cal = tz.TZDateTime.fromMillisecondsSinceEpoch(tz.getLocation(utcZone!), timestamp * 1000);
+    }
     var y = cal.year;
     var m = cal.month;
     var d = cal.day;
@@ -480,8 +492,8 @@ class CalendarTool {
     m = objDate.month;
     d = objDate.day;
 
-    final date1 = DateTime(y, m, d,0,0,0);
-    final date2 = DateTime(1900, 1, 31,0,0,0);
+    final date1 = DateTime(y, m, d, 0, 0, 0);
+    final date2 = DateTime(1900, 1, 31, 0, 0, 0);
     final timeStamp2 = date2.millisecondsSinceEpoch;
     final diffMilliseconds = date1.millisecondsSinceEpoch - timeStamp2;
     var offset = (diffMilliseconds / 86400000).round();
@@ -542,6 +554,16 @@ class CalendarTool {
     //农历日
     var day = offset + 1;
 
-    return [year, month, day, cal.hour, isLeap ? 1 : 0];
+    return [year, month, day, cal.hour,cal.minute, isLeap ? 1 : 0];
+  }
+
+  static bool isTimeZoneValid(String timeZoneId) {
+    try {
+      tz_data.initializeTimeZones();
+      tz.getLocation(timeZoneId); // 尝试获取时区
+      return true; // 未抛出异常，说明合法
+    } catch (e) {
+      return false; // 捕获异常，说明不合法
+    }
   }
 }

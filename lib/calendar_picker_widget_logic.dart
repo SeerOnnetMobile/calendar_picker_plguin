@@ -3,6 +3,8 @@ import 'package:calendar_picker_sl/common/calendar_month_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:timezone/timezone.dart' as tz;
+import 'package:timezone/data/latest.dart' as tz_data;
 
 enum CalendarPickerType {
   day, // 精确到日期
@@ -58,14 +60,18 @@ class CalendarPickerWidgetLogic extends GetxController {
 
   int? minDate;
 
-  CalendarPickerWidgetLogic(
-      {this.initialDate,
-      this.minDate,
-      this.maxDate,
-      this.initialIsSolar,
-      required this.isUnknownHour,
-      required this.pickerType,
-      required this.language});
+  String? utcZone;
+
+  CalendarPickerWidgetLogic({
+    this.initialDate,
+    this.minDate,
+    this.maxDate,
+    this.initialIsSolar,
+    this.utcZone,
+    required this.isUnknownHour,
+    required this.pickerType,
+    required this.language,
+  });
 
   RxList<CalendarItemModel> year = RxList<CalendarItemModel>(), month = RxList<CalendarItemModel>(), day = RxList<CalendarItemModel>();
 
@@ -146,13 +152,30 @@ class CalendarPickerWidgetLogic extends GetxController {
 
   @override
   void onInit() {
-    final rootDate = DateTime.fromMillisecondsSinceEpoch((initialDate ?? 631123200) * 1000);
-    if (pickerType == CalendarPickerType.day) {
-      // 选择日期把时间设置为00:00
-      selectedDate = DateTime(rootDate.year, rootDate.month, rootDate.day).millisecondsSinceEpoch ~/ 1000;
+    if (utcZone != null && !CalendarTool.isTimeZoneValid(utcZone!)) {
+      utcZone = null;
+    }
+    if (utcZone == null) {
+      final rootDate = DateTime.fromMillisecondsSinceEpoch((initialDate ?? 631123200) * 1000);
+      if (pickerType == CalendarPickerType.day) {
+        // 选择日期把时间设置为00:00
+        selectedDate = DateTime(rootDate.year, rootDate.month, rootDate.day).millisecondsSinceEpoch ~/ 1000;
+      } else {
+        // 选择时间的把秒数清空
+        selectedDate = DateTime(rootDate.year, rootDate.month, rootDate.day, rootDate.hour, rootDate.minute, 0).millisecondsSinceEpoch ~/ 1000;
+      }
     } else {
-      // 选择时间的把秒数清空
-      selectedDate = DateTime(rootDate.year, rootDate.month, rootDate.day, rootDate.hour, rootDate.minute, 0).millisecondsSinceEpoch ~/ 1000;
+      tz_data.initializeTimeZones();
+      final timezone = tz.getLocation(utcZone!);
+      final rootDate = tz.TZDateTime.fromMillisecondsSinceEpoch(timezone, (initialDate ?? 631123200) * 1000);
+      if (pickerType == CalendarPickerType.day) {
+        // 选择日期把时间设置为00:00
+        selectedDate = tz.TZDateTime(timezone, rootDate.year, rootDate.month, rootDate.day).millisecondsSinceEpoch ~/ 1000;
+      } else {
+        // 选择时间的把秒数清空
+        selectedDate =
+            tz.TZDateTime(timezone, rootDate.year, rootDate.month, rootDate.day, rootDate.hour, rootDate.minute, 0).millisecondsSinceEpoch ~/ 1000;
+      }
     }
 
     var maxYear = 2099;
@@ -258,11 +281,11 @@ class CalendarPickerWidgetLogic extends GetxController {
   }
 
   List<int> solarDateInfoArray() {
-    return CalendarTool.solarDateToIntList(selectedDate);
+    return CalendarTool.solarDateToIntList(selectedDate, utcZone: utcZone);
   }
 
   List<int> lunarDateInfoArray() {
-    return CalendarTool.solarDateToLunar(selectedDate);
+    return CalendarTool.solarDateToLunar(selectedDate, utcZone: utcZone);
   }
 
   // 农历、新历切换，跳转到对应的位置
@@ -370,7 +393,7 @@ class CalendarPickerWidgetLogic extends GetxController {
       sYear.value = CalendarItemModel(display: list[0].toString(), code: list[0]);
       final leapMonth = CalendarTool.leapMonth(list[0]);
       // sMonth 的含义是下标 + 1
-      if (list[4] == 1) {
+      if (list[5] == 1) {
         // 本月是闰月，数值就是sMonth（例子：闰2月，sMonth == 3：sMonth==list[1] + 1）
         sMonth.value = CalendarItemModel(display: "闰${list[1]}月", code: list[1] + 1);
       } else if (leapMonth == 0) {
@@ -582,7 +605,7 @@ class CalendarPickerWidgetLogic extends GetxController {
       int endMonth = nMonth.last.code;
       if (minLunar[0] == selectedYear) {
         if (runMonth > 0) {
-          if (minLunar[4] == 1) {
+          if (minLunar[5] == 1) {
             // 本月是闰月，数值就是sMonth（例子：闰2月，sMonth == 3：sMonth==list[1] + 1）
             startMonth = minLunar[1] + 1;
           } else if (runMonth == 0) {
@@ -609,7 +632,7 @@ class CalendarPickerWidgetLogic extends GetxController {
 
       if (maxLunar[0] == selectedYear) {
         if (runMonth > 0) {
-          if (maxLunar[4] == 1) {
+          if (maxLunar[5] == 1) {
             // 本月是闰月，数值就是sMonth（例子：闰2月，sMonth == 3：sMonth==list[1] + 1）
             endMonth = maxLunar[1] + 1;
           } else if (runMonth == 0) {
@@ -647,7 +670,7 @@ class CalendarPickerWidgetLogic extends GetxController {
       int endDay = count;
 
       int minMonth = minLunar[1];
-      if (minLunar[4] == 1) {
+      if (minLunar[5] == 1) {
         // 本月是闰月，数值就是sMonth（例子：闰2月，sMonth == 3：sMonth==list[1] + 1）
         minMonth = minLunar[1] + 1;
       } else if (runMonth == 0) {
@@ -671,7 +694,7 @@ class CalendarPickerWidgetLogic extends GetxController {
       }
 
       int maxMonth = maxLunar[1];
-      if (maxLunar[4] == 1) {
+      if (maxLunar[5] == 1) {
         // 本月是闰月，数值就是sMonth（例子：闰2月，sMonth == 3：sMonth==list[1] + 1）
         maxMonth = maxLunar[1] + 1;
       } else if (runMonth == 0) {
@@ -785,6 +808,11 @@ class CalendarPickerWidgetLogic extends GetxController {
         }
         String dateString = "$year-$month-$day $hour:00:00";
         DateTime dateTime = DateFormat("yyyy-MM-dd HH:mm:ss").parse(dateString);
+
+        if (utcZone != null) {
+          final timezone = tz.getLocation(utcZone!);
+          dateTime = tz.TZDateTime(timezone, year, month, day, hour, 0);
+        }
         int timestamp = dateTime.millisecondsSinceEpoch ~/ 1000;
         selectedDate = timestamp;
         debugPrint("选中的日期为$dateString ${isSolar.isTrue ? "公历" : "农历"} ${isUnknownHour ? "是" : "不是"}未知时辰");
@@ -820,6 +848,10 @@ class CalendarPickerWidgetLogic extends GetxController {
 
         String dateString = "${dateList[0]}-${dateList[1]}-${dateList[2]} $hour:00:00";
         DateTime dateTime = DateFormat("yyyy-MM-dd HH:mm:ss").parse(dateString);
+        if (utcZone != null) {
+          final timezone = tz.getLocation(utcZone!);
+          dateTime = tz.TZDateTime(timezone, dateList[0], dateList[1], dateList[2], hour, 0);
+        }
         int timestamp = dateTime.millisecondsSinceEpoch ~/ 1000;
         selectedDate = timestamp;
         debugPrint("选中的日期为$dateString ${isSolar.isTrue ? "公历" : "农历"} ${isUnknownHour ? "是" : "不是"}未知时辰");
@@ -835,6 +867,11 @@ class CalendarPickerWidgetLogic extends GetxController {
         isUnknownHour = false;
         String dateString = "$year-$month-$day ${hour.toString().padLeft(2, "0")}:${minute.toString().padLeft(2, "0")}:00";
         DateTime dateTime = DateFormat("yyyy-MM-dd HH:mm:ss").parse(dateString);
+
+        if (utcZone != null) {
+          final timezone = tz.getLocation(utcZone!);
+          dateTime = tz.TZDateTime(timezone, year, month, day, hour, minute, 0);
+        }
         int timestamp = dateTime.millisecondsSinceEpoch ~/ 1000;
         selectedDate = timestamp;
         debugPrint("选中的日期为$dateString ${isSolar.isTrue ? "公历" : "农历"} ${isUnknownHour ? "是" : "不是"}未知时辰");
@@ -871,6 +908,11 @@ class CalendarPickerWidgetLogic extends GetxController {
 
         String dateString = "${dateList[0]}-${dateList[1]}-${dateList[2]} ${hour.toString().padLeft(2, "0")}:${minute.toString().padLeft(2, "0")}:00";
         DateTime dateTime = DateFormat("yyyy-MM-dd HH:mm:ss").parse(dateString);
+
+        if (utcZone != null) {
+          final timezone = tz.getLocation(utcZone!);
+          dateTime = tz.TZDateTime(timezone, dateList[0], dateList[1], dateList[2], hour, minute, 0);
+        }
         int timestamp = dateTime.millisecondsSinceEpoch ~/ 1000;
         selectedDate = timestamp;
         debugPrint("选中的日期为$dateString ${isSolar.isTrue ? "公历" : "农历"} ${isUnknownHour ? "是" : "不是"}未知时辰");
@@ -944,7 +986,7 @@ class CalendarPickerWidgetLogic extends GetxController {
           }
         }
         nRegularMonth = tmpMonth;
-        if (runMonth < dateInfo[1] || dateInfo[4] == 1) {
+        if (runMonth < dateInfo[1] || dateInfo[5] == 1) {
           monthIndex += 1;
         }
       }

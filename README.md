@@ -20,18 +20,20 @@
 ### 2、打开时间选择器弹窗
 #### 传参
 
-| 参数名           | 参数描述                | 必传| 备注                                                           |
-|---------------|---------------------|-------|--------------------------------------------------------------|
-| pickerType    | 选择器的精度              |是| `CalendarPickerType`枚举的可选值：day、hour、minute                   |
-| errorCallback | 错误回调                |是| 返回报错内容`errorMsg`                                             |
-| dateCallback  | 返回结果回调              |是| 返回时间戳`timeStamp`（单位秒）、是否未知时辰`unknowHour`、展示文案`displayString` |
-| config        | 弹窗样式配置              | 否 | 根据「用法」->1 中的事例配置                                             |
-| initialDate   | 默认选中时间的时间戳（int,单位秒） | 否| 如果不传默认选中「1990/1/1 00:00:00」                                  |
-| minDate       | 最小时间的时间戳（int,单位秒）   | 否 | 如果不传默认起始时间为「1902/1/1 00:00:00」                               |
-| maxDate       | 最大时间的时间戳（int,单位秒）   | 否 | 如果不传默认起始时间为「2099/12/31 23:59:00」                             |
-| isSolar       | 是否阳历                | 是| bool值， 阳历传true                                               |
-| isUnknownHour | 是否未知时辰              | 否| 只有`pickerType `传hour时生效                                      |
-| language      | 语言                  | 否| `zh_Hans` `zh_Hant`  简繁两种取值                                  |
+| 参数名            | 参数描述                | 必传| 备注                                                           |
+|----------------|---------------------|-------|--------------------------------------------------------------|
+| pickerType     | 选择器的精度              |是| `CalendarPickerType`枚举的可选值：day、hour、minute                   |
+| errorCallback  | 错误回调                |是| 返回报错内容`errorMsg`                                             |
+| dateCallback   | 返回结果回调              |是| 返回时间戳`timeStamp`（单位秒）、是否未知时辰`unknowHour`、展示文案`displayString` |
+| config         | 弹窗样式配置              | 否 | 根据「用法」->1 中的事例配置                                             |
+| initialDate    | 默认选中时间的时间戳（int,单位秒） | 否| 如果不传默认选中「1990/1/1 00:00:00」                                  |
+| minDate        | 最小时间的时间戳（int,单位秒）   | 否 | 如果不传默认起始时间为「1902/1/1 00:00:00」                               |
+| maxDate        | 最大时间的时间戳（int,单位秒）   | 否 | 如果不传默认起始时间为「2099/12/31 23:59:00」                             |
+| isSolar        | 是否阳历                | 是| bool值， 阳历传true                                               |
+| isUnknownHour  | 是否未知时辰              | 否| 只有`pickerType `传hour时生效                                      |
+| language       | 语言                  | 否| `zh_Hans` `zh_Hant`  简繁两种取值                                  |
+| utcZone        | 时区                  | 否| 地区标识符（Asia/Shanghai）                                                      |
+
 
 ### 调起弹窗
 ### 1、普通弹窗
