@@ -1,16 +1,19 @@
 import 'package:calendar_picker_sl/common/app_click_view.dart';
 import 'package:calendar_picker_sl/common/calendar_month_model.dart';
 import 'package:calendar_picker_sl/common/common_method.dart';
+import 'package:calendar_picker_sl/model/calendar_result_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:timezone/data/latest.dart' as tz_data;
+import 'package:timezone/timezone.dart' as tz;
 
 import 'calendar_picker_widget_logic.dart';
 import 'common/calendar_config.dart';
 
-typedef DateCallback = void Function(int timeStamp, bool isSolar, bool unknowHour, String displayString);
+typedef DateCallback = void Function(CalendarResultModel);
 
 typedef ErrorCallback = void Function(String errorMsg);
 
@@ -54,21 +57,6 @@ class CalendarPickerWidgetPage extends StatelessWidget {
       isUnknownHour: isUnknownHour,
       pickerType: pickerType,
       language: language));
-
-  // 普通弹出
-  show({required BuildContext context}) {
-    FocusManager.instance.primaryFocus?.unfocus();
-    if (logic.maxDateTime.millisecondsSinceEpoch < logic.minDateTime.millisecondsSinceEpoch) {
-      errorCallback(logic.getText(key: "error_range"));
-      Get.delete<CalendarPickerWidgetLogic>(force: true);
-      return;
-    }
-
-    _context = context;
-    showBottomDialog(this, context: context, onDismiss: () {
-      Get.delete<CalendarPickerWidgetLogic>(force: true);
-    });
-  }
 
   // 用SmartDialog弹出
   showWithSmartDialog() {
@@ -326,7 +314,24 @@ class CalendarPickerWidgetPage extends StatelessWidget {
                       errorCallback("${logic.getText(key: "cant_late_then")}$time");
                     } else {
                       closeBottomSheet();
-                      dateCallback(date, isSolar, logic.isUnknownHour, displayString);
+
+                      DateTime selectedDate;
+                      if (utcZone == null) {
+                        selectedDate = DateTime.fromMillisecondsSinceEpoch(date * 1000);
+                      } else {
+                        tz_data.initializeTimeZones();
+                        final timezone = tz.getLocation(utcZone!);
+                        selectedDate = tz.TZDateTime.fromMillisecondsSinceEpoch(timezone, (date) * 1000);
+
+                      }
+                      final result = CalendarResultModel(
+                          timeStamp: date,
+                          isSolar: isSolar,
+                          unknownHour: logic.isUnknownHour,
+                          displayString: displayString,
+                          selectedDate: selectedDate
+                      );
+                      dateCallback(result);
                     }
                   }),
               SizedBox(

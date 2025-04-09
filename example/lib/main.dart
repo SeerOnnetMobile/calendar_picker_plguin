@@ -1,4 +1,3 @@
-
 import 'package:calendar_picker_sl/calendar_picker_widget_logic.dart';
 import 'package:calendar_picker_sl/calendar_picker_widget_view.dart';
 import 'package:calendar_picker_sl/common/app_click_view.dart';
@@ -60,7 +59,6 @@ class _MyPageState extends State<MyPage> {
   String _selectedDate = '未选择';
   String _errorMsg = '';
   bool _isLunar = true;
-  bool _isSmartDialog = true;
   bool _isUnknowHour = true;
   CalendarPickerType _type = CalendarPickerType.day;
   final initTimeController = TextEditingController(text: "1744024324");
@@ -126,17 +124,6 @@ class _MyPageState extends State<MyPage> {
                         value: _isUnknowHour,
                         onChanged: (isTrue) {
                           _isUnknowHour = isTrue;
-                          setState(() {});
-                        }),
-                  ],
-                ),
-                Row(
-                  children: [
-                    const Text("是否使用SmartDialog？"),
-                    Switch(
-                        value: _isSmartDialog,
-                        onChanged: (isTrue) {
-                          _isSmartDialog = isTrue;
                           setState(() {});
                         }),
                   ],
@@ -289,16 +276,16 @@ class _MyPageState extends State<MyPage> {
       isSolar: !_isLunar,
       isUnknownHour: _isUnknowHour,
       pickerType: _type,
-      utcZone: timeZoneController.text.isEmpty? null : timeZoneController.text,
-      dateCallback: (date, isSolar, isUnknowHour, displayString) {
-        debugPrint("$displayString");
+      utcZone: timeZoneController.text.isEmpty ? null : timeZoneController.text,
+      dateCallback: (result) {
+        debugPrint(
+            "${result.displayString},时间标识为：${result.selectedDate.year}${result.selectedDate.month.toString().padLeft(2, "0")}${result.selectedDate.day.toString().padLeft(2, "0")}${result.selectedDate.hour.toString().padLeft(2, "0")}${result.selectedDate.minute.toString().padLeft(2, "0")}");
         setState(() {
-          _selectedDate = displayString;
-          initTimeController.text = date.toString();
-          _isLunar = !isSolar;
-          setState(() {
-
-          });
+          _selectedDate = result.displayString;
+          initTimeController.text = result.timeStamp.toString();
+          _isLunar = !result.isSolar;
+          _isUnknowHour = result.unknownHour;
+          setState(() {});
         });
       },
       errorCallback: (msg) {
@@ -307,10 +294,6 @@ class _MyPageState extends State<MyPage> {
         setState(() {});
       },
     );
-    if (_isSmartDialog) {
-      page.showWithSmartDialog();
-    } else {
-      page.show(context: context);
-    }
+    page.showWithSmartDialog();
   }
 }

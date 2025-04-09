@@ -368,7 +368,7 @@ class CalendarPickerWidgetLogic extends GetxController {
         yearController.value.jumpToItem(yearIndex);
         monthController.value.jumpToItem(monthIndex);
         dayController.value.jumpToItem(dayIndex);
-        timeController.value.jumpToItem(hourIndex);
+        timeController.value.jumpToItem(timeIndex);
         hourController.value.jumpToItem(hourIndex);
         minuteController.value.jumpToItem(minuteIndex);
       }
