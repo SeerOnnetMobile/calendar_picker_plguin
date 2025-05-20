@@ -170,7 +170,7 @@ class CalendarPickerWidgetPage extends StatelessWidget {
                       child: Row(
                         children: [
                           buildPicker(
-                            title: "年".tr,
+                            title: logic.getText(key: "year"),
                             scrollController: logic.yearController,
                             items: logic.year,
                             mapClosure: (e) {
@@ -187,7 +187,7 @@ class CalendarPickerWidgetPage extends StatelessWidget {
                             },
                           ),
                           buildPicker(
-                            title: "月".tr,
+                            title: logic.getText(key: "month"),
                             scrollController: logic.monthController,
                             items: logic.month,
                             mapClosure: (e) {
@@ -204,7 +204,7 @@ class CalendarPickerWidgetPage extends StatelessWidget {
                             },
                           ),
                           buildPicker(
-                            title: "日".tr,
+                            title: logic.getText(key: "day"),
                             scrollController: logic.dayController,
                             items: logic.day,
                             mapClosure: (e) {
@@ -226,7 +226,7 @@ class CalendarPickerWidgetPage extends StatelessWidget {
                     if (logic.pickerType == CalendarPickerType.day) const SizedBox(),
                     if (logic.pickerType == CalendarPickerType.hour)
                       buildPicker(
-                        title: "时".tr,
+                        title: logic.getText(key: "hour"),
                         scrollController: logic.timeController,
                         items: logic.time,
                         mapClosure: (e) {
@@ -265,7 +265,7 @@ class CalendarPickerWidgetPage extends StatelessWidget {
                               },
                             ),
                             buildPicker(
-                              title: "分".tr,
+                              title: logic.getText(key: "minute"),
                               scrollController: logic.minuteController,
                               items: logic.minute,
                               mapClosure: (e) {

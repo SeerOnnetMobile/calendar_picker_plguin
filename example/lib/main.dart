@@ -61,6 +61,7 @@ class _MyPageState extends State<MyPage> {
   bool _isLunar = true;
   bool _isUnknowHour = true;
   CalendarPickerType _type = CalendarPickerType.day;
+  CalendarPickerLanguage _language = CalendarPickerLanguage.zh_Hans;
   final initTimeController = TextEditingController(text: "1744024324");
   final timeZoneController = TextEditingController(text: "");
   final minTimeController = TextEditingController(text: "978345360");
@@ -233,6 +234,52 @@ class _MyPageState extends State<MyPage> {
                             })
                       ],
                     )),
+                SizedBox(
+                    height: 44,
+                    child: Row(
+                      children: [
+                        const Text("语言:"),
+                        AppClickView(
+                            child: Container(
+                              margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                              width: 60,
+                              height: 40,
+                              color: _language == CalendarPickerLanguage.zh_Hans ? Colors.amberAccent : Colors.black12,
+                              child: const Center(child: Text("简体")),
+                            ),
+                            onClick: () {
+                              setState(() {
+                                _language = CalendarPickerLanguage.zh_Hans;
+                              });
+                            }),
+                        AppClickView(
+                            child: Container(
+                              margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                              width: 60,
+                              height: 40,
+                              color: _language == CalendarPickerLanguage.zh_Hant ? Colors.amberAccent : Colors.black12,
+                              child: const Center(child: Text("繁體")),
+                            ),
+                            onClick: () {
+                              setState(() {
+                                _language = CalendarPickerLanguage.zh_Hant;
+                              });
+                            }),
+                        AppClickView(
+                            child: Container(
+                              margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                              width: 60,
+                              height: 40,
+                              color: _language == CalendarPickerLanguage.en_US ? Colors.amberAccent : Colors.black12,
+                              child: const Center(child: Text("English")),
+                            ),
+                            onClick: () {
+                              setState(() {
+                                _language = CalendarPickerLanguage.en_US;
+                              });
+                            })
+                      ],
+                    )),
                 AppClickView(
                     child: Container(
                       width: double.infinity,
@@ -268,7 +315,7 @@ class _MyPageState extends State<MyPage> {
         confirmBtnColor: Colors.yellow,
         confirmTextColor: Colors.black);
     final page = CalendarPickerWidgetPage(
-      language: CalendarPickerLanguage.zh_Hant,
+      language: _language,
       config: config,
       initialDate: int.parse(initTimeController.text),
       minDate: int.parse(minTimeController.text),

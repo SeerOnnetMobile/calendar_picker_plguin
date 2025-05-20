@@ -23,6 +23,7 @@ enum CalendarPickerUpdateCalendarType {
 enum CalendarPickerLanguage {
   zh_Hans,
   zh_Hant,
+  en_US,
 }
 
 class CalendarPickerWidgetLogic extends GetxController {
@@ -212,7 +213,7 @@ class CalendarPickerWidgetLogic extends GetxController {
 
     final tmpList = language == CalendarPickerLanguage.zh_Hans
         ? [
-            '时辰未知',
+            getText(key: "base_unknow_hour"),
             '00:00~00:59(早子)',
             '01:00~01:59(丑时)',
             '02:00~02:59(丑时)',
@@ -239,7 +240,7 @@ class CalendarPickerWidgetLogic extends GetxController {
             '23:00~23:59(晚子)'
           ]
         : [
-            '時辰未知',
+            getText(key: "base_unknow_hour"),
             '00:00~00:59(早子)',
             '01:00~01:59(丑時)',
             '02:00~02:59(丑時)',
@@ -1008,9 +1009,31 @@ class CalendarPickerWidgetLogic extends GetxController {
 
   String getText({required String key}) {
     Map<String, String> languageMap = {};
-    if (language == CalendarPickerLanguage.zh_Hans) {
+
+    if (language == CalendarPickerLanguage.en_US) {
+      languageMap = {
+        "error_range": "The start time cannot be later than the end time",
+        "year": "Year",
+        "month": "Month",
+        "day": "Day",
+        "minute": "Minute",
+        "base_unknow_hour": "Unknown hour",
+        "twelve": "臘",
+        "leap": "閏",
+        "solar": "Solar",
+        "lunar": "Lunar",
+        "hour": "Hour",
+        "confirm": "Confirm",
+        "cant_early_then": "The selected date cannot be earlier than ",
+        "cant_late_then": "The selected date cannot be later than "
+      };
+    } else if (language == CalendarPickerLanguage.zh_Hans) {
       languageMap = {
         "error_range": "起始时间不能晚于结束时间",
+        "year": "年",
+        "month": "月",
+        "day": "日",
+        "minute": "分",
         "base_unknow_hour": "未知时辰",
         "twelve": "腊",
         "leap": "闰",
@@ -1024,6 +1047,10 @@ class CalendarPickerWidgetLogic extends GetxController {
     } else {
       languageMap = {
         "error_range": "起始時間不能早於結束時間",
+        "year": "年",
+        "month": "月",
+        "day": "日",
+        "minute": "分",
         "base_unknow_hour": "未知時辰",
         "twelve": "臘",
         "leap": "閏",
